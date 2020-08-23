@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>List Test</title>
+	<link rel="stylesheet" href="Homepage.css">
+	<script src="JQuery.min.js"></script>
+    
+	<script type="text/javascript">
+                
+            function makeTable(array) { /* function that creates the HTML table, from 2Darray/matrix in input */ 
+                var table = document.createElement('table');
+				table.style.width = '95%';
+				table.setAttribute('border', '1');
+				
+				var rowhdr = document.createElement('tr');
+				
+				var cellhdr = document.createElement('th'); //Table Header
+				cellhdr.textContent = "First Name";
+				rowhdr.appendChild(cellhdr);
+				table.appendChild(rowhdr);
+				
+				var cellhdr = document.createElement('th');
+				cellhdr.textContent = "Last Name";
+				rowhdr.appendChild(cellhdr);
+				table.appendChild(rowhdr);
+				
+				var cellhdr = document.createElement('th');
+				cellhdr.textContent = "Hour";
+				rowhdr.appendChild(cellhdr);
+				table.appendChild(rowhdr);
+				
+				var cellhdr = document.createElement('th');
+				cellhdr.textContent = "Mail";
+				rowhdr.appendChild(cellhdr);
+				table.appendChild(rowhdr);
+				
+				var cellhdr = document.createElement('th');
+				cellhdr.textContent = "National ID";
+				rowhdr.appendChild(cellhdr);
+				table.appendChild(rowhdr);
+				
+                for (var i = 0; i < array.length; i++) {
+                    var row = document.createElement('tr');
+					for (var j = 0; j < array[i].length; j++) {
+										
+						var cell = document.createElement('td');
+                        cell.textContent = array[i][j];
+                        row.appendChild(cell);
+						}
+                    table.appendChild(row);
+                }
+                return table;
+            }
+		
+        
+            function refresh() { // The function fetches the list from Arduino and formats it as an HTML table, then it appends the table in the HTML code.
+                    
+                    document.getElementById("currentdatabase").style.visibility = "hidden" //This line hids the non-formatted list
+					$('#currentdatabase').load('List');
+                
+					
+                    var str = currentdatabase.innerHTML; //Procedure: take the list as a string.
+                
+                    // Split the source by line first:
+                    var lines = str.split('\n');
+                
+                    /* Now loop through each line and split the line by 'space char' by applying a map function to each line https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map */
+                    var output = lines.map(function(line) {
+                        return line.split('|'); // returns a new array of words (for each line);
+                    });
+                    
+                
+                    /*The following code appends the table to the html page, in order to visualize it*/
+                    var tableHolder = document.getElementById("formattedlist");
+                    var oldTable = tableHolder.firstChild;
+                    if (!oldTable) {
+                        tableHolder.appendChild(makeTable(output));
+                    }
+                    else {            
+                    tableHolder.replaceChild(makeTable(output), tableHolder.firstChild);
+                    }
+            }
+    
+        
+        
+            function access() { // fetches the file that specifies the access (ALLOWED/FORBIDDED/COVID)
+				$('#access').load('accesstype');
+			}  
+			
+        
+        
+             /* REST-API function */
+            function sendMsg() {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        //alert(this.responseText);
+                    }
+                };
+                
+                /*Get curent time*/
+                var today = new Date();
+                var time = today.getHours() + ":" + today.getMinutes()+ ":" + today.getSeconds();
+                
+                /* address/message to be sent with REST-API, as a string*/
+                var persondata = "http://192.168.1.69/arduino/registration/" + document.msgform.fnamefield.value + "/" + document.msgform.lnamefield.value + "/" + time + "/" + document.msgform.mailfield.value + "/" +  document.msgform.nationalidfield.value;
+                                                
+                xhttp.open("POST", persondata , true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                xhttp.send(null);
+                
+                clearFields();//clears the form fields
+                return false; //prevents reloading of the page
+            }
+        
+        
+        
+            function sendCovid() {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        //alert(this.responseText);
+                    }
+                };
+                
+                /* national ID of the person with COVID, to be sent with REST-API, as a string*/
+                var coviddata = "http://192.168.1.69/arduino/covid/" + document.covidform.nationalIDcovid.value;
+                                                
+                xhttp.open("POST", coviddata , true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                xhttp.send(null);
+                
+                clearFieldscovid();//clears the covid form field
+                return false; //prevents reloading of the page
+            }
+        
+            
+            function clearFields() { //clears the fields after the submit
+                document.msgform.fnamefield.value = '';
+                document.msgform.lnamefield.value = '';
+                document.msgform.mailfield.value = '';
+                document.msgform.nationalidfield.value = '';
+            }
+        
+            function clearFieldscovid() { //clears the covid field after the submit
+                document.covidform.nationalIDcovid.value = '';
+            }
+    
+    
+	</script>
+    
+<!-- Fetches a new list every 500ms. ATTENTION: when the page is local (e.g. file:///C:/Users/Daniele/Desktop/Project/) you need to disable CORS in CHROME. There is no problem when accessing the arduino Web Server -->
+<body onLoad="setInterval(refresh, 200);"> 
+
+   <div class="splitHoriz left"> <!-- Left size -->
+        <div id="people">
+            
+            <div class="access" id="access"> Wait a moment ... </div>
+            <!--Arduino will edit the text file containing the accesstype file (ALLOWED/FORBIDDED/COVID) -->
+            <script> setInterval(access, 200); </script>  
+		
+            <p style="text-indent:1em"> <B> Entry list </B> </p>
+            
+            <span id="formattedlist">  List to be shown... </span> <BR> 
+            
+            <span id="currentdatabase"> </span> <BR> <BR>
+            
+		</div>
+
+
+    <!-- style="left: 50%;" -->
+	<div class="splitHoriz right" > <!-- User registration window -->
+        <div id="registration" class="splitVert top">
+			<div class="extra">
+						 			
+			<p style="color:black; margin-left:5%; font-size:20px;" > <B>User registration</B> </p>
+                
+            <form name="msgform" onSubmit="return sendMsg()"> 
+                <input type="text" id="fnamefield" placeholder="..." /> <I style="color:black; font-size:15px;"> First Name </I> <BR> <BR>
+                <input type="text" id="lnamefield" placeholder="..." /> <I style="color:black; font-size:15px;"> Last Name </I>  <BR> <BR>            
+                <input type="text" id="mailfield" placeholder="..." /> <I style="color:black; font-size:15px;"> Mail </I>  <BR> <BR>
+                <input type="text" id="nationalidfield" placeholder="..." />  <I style="color:black; font-size:15px;"> National ID  </I> <BR> <BR>
+                <input type="submit" value="Register user in the database" >
+            </form>
+            	
+		
+			</div>
+        </div>
+		 
+        <div id="signal" class="splitVert bot"> 
+            
+             <p style="margin-left:5%"> <B> Insert the national ID of the user with COVID to alert all the people that entered the list in the previous hours. </B> </p>
+             <form name="covidform" onSubmit="return sendCovid()">
+                <input type="text" id="nationalIDcovid" placeholder="..." /> <I style="font-size:15px; text-indent:1em;"> National ID of COVID subject </I> <BR> <BR>
+                <input type="submit" value="Send the ID of the subject with COVID and and e-mail alerts" >
+            </form>
+        
+        </div>
+    </div>
+    
+</body>
+</html> 

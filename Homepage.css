@@ -1,0 +1,107 @@
+body {
+    font-family: Arial;
+    background-color: black;
+    color: white;
+}
+
+form {
+    margin-left: 5%;
+}
+
+.splitHoriz {
+    height: 100%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    overflow-x: scroll;
+    padding-top: 0;
+}
+
+.left {
+    left: 0;
+    width: 65%;
+    background-color: #222222;
+}
+
+.right {
+    right: 0;
+    width: 35%;
+    background-color: black;
+    border-left-style: solid;
+    border-left-color: yellow;
+    border-left-width: 2px;
+}
+
+.splitVert {
+    width: 100%;
+    position: fixed;
+    z-index: 1;
+    overflow-y: 0;
+    overflow-x: hidden;
+}
+
+.top {
+    top: 0;
+    height: 50%;
+    width: 35%;
+    background-color: palegreen;
+    border-bottom: 2px yellow solid;
+    z-index: 100;
+    overflow-x: auto;
+    overflow-y: scroll;
+}
+
+.bot {
+    bottom: 0;
+    height: 50%;
+    width: 35%;
+    background-color: red;
+	overflow-x: auto;
+    overflow-y: scroll;
+    z-index: 50;
+}
+
+.access {
+    width: 50%;
+    border: 7px solid orange;
+    padding: 2%;
+    margin: 15px;
+    font-size: 200%;
+}
+
+.msgform {
+    margin-left: 25%;
+    margin-right: 25%;
+    width: 50%;
+}
+
+.signal {
+    margin-left: 25%;
+    margin-right: 25%;
+    width: 50%;
+}
+
+.topText {
+    position: relative;
+    top: 0;
+    height: 10%;
+    text-align: center;
+    align-content: center;
+    background-color: black;
+}
+
+.botText {
+    position: relative;
+    top: 0;
+    height: 10%;
+    text-align: center;
+    align-content: center;
+    background-color: black;
+}
+
+.list {
+    position: relative;
+    top: 20%;
+    left: 20px;
+    text-align: left;
+}
